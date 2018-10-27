@@ -1,8 +1,8 @@
 # Magic City Bikes
 
-Joni Salmi
-Irene Nikkarinen
-Kristiina Rahikainen
+- Joni Salmi
+- Irene Nikkarinen
+- Kristiina Rahikainen
 
 Introduction to Data Science miniproject for predicting when a HSL city bike will be added and when one will be taken from a city bike station.
 
@@ -10,7 +10,7 @@ Introduction to Data Science miniproject for predicting when a HSL city bike wil
 
 ### How it works:
 
-Estimates are calculated for each station separately based on 2 years worth of data. There are different estimates for rainy/not rainy weather and warm/cold weather for each weekday and hour. The current weather is queried from opendata.fmi.fi, and the correct estimate is displayed. If there are no bikes, the estimate for next bike brought is not shown. New weather data is queried and estimates chosen every ten minutes.
+Estimates are calculated for each station separately based on data of last three seasons. There are different estimates for rainy/not rainy weather and warm/cold weather for each weekday and hour. The current weather is queried from opendata.fmi.fi, and the correct estimate is displayed. If there are no bikes, the estimate for next bike brought is not shown. New weather data is queried and estimates chosen every ten minutes.
 
 We used the application [kaupunkifillarit.fi](https://github.com/sampsakuronen/kaupunkifillarit-web) as a basis for our project.
 
@@ -19,7 +19,10 @@ We used the application [kaupunkifillarit.fi](https://github.com/sampsakuronen/k
 We combined data on the HSL city bike stations and weather data.
 
 ### HSL city bikes
-TODO: Describe data used and how it was gathered
+
+HSL provides comprehensive APIs for all means of public transportation. In this report we focus on the city bike data exclusively which is available at <https://dev.hsl.fi/>. The used APIs are real-time but some limited historical data is available at <https://dev.hsl.fi/citybike/>. The API contains the following information for each station: id, name, coordinates, number of parked bikes, number of parking slots and some status info. Fortunately, we had been collecting the data for three last seasons ourselves. The data collection was conducted by polling the HSL City Bike APIs for past three years with one minute intervals. These snapshots that represent the status of a single station at given time are referred to as events. We had total of 68 million events in the dataset. 
+
+We encountered some issues with the event data which we'll describe in more detail here. There were duplicate events caused by bug in our collector and we had to include data deduplication in our pipeline. There were missing events caused by either City Bike API unavailability or errors with the collector. This lead to us making assumptions about data when at most one consecutive snapshot (1 minute) was missing, and discarding some events that happened around the missing events when durations were longer. HSL made changes to the City Bikes network throughout seasons such as relocation of stations, and assigning new identifiers to stations because of that. We considered stations to be the same, if the name of the station was the same throughout seasons and considered them to be distinct otherwise. Another option was to normalize stations based on their coordinates and treat stations as equal if they were close to other station from previous season.
 
 ### Weather
 
