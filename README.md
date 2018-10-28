@@ -44,7 +44,7 @@ Missing timestamps --> assume that no bike was brought or taken
 ### Preprocessing
 Since the problem we're trying to solve was how long one would have to wait for a bike to be taken or brought to a station, the first thing we had to do was calculate the waiting times for each timestamp we had. We did this by adding a boolean column stating whether a bike was added or removed at a specific moment, and then calculating the amount of minutes passed in between. This was surely the slowest part of our analyser. We also calculated the amount of time the station had been idle for, since we thought this might be useful in regression.
 
-We then removed any duplicates ans waiting times which appeared less than 10 times, assuming that they are outliers and would distort the estimates.
+We then removed any duplicates and waiting times which appeared less than 10 times, assuming that they are outliers and would distort the estimates.
 
 The weather and bike usage data was merged based on hour. This way we ended up with a dataframe containing the waiting times and information about the temperature and amount of rain.
 
@@ -53,7 +53,9 @@ The first thing we tried was linear regression. Some of the features the predict
 
 We then tried using a neural network for producing the waiting time, but the network only learned to predict the mean of waiting times. We also turned the problem into a classification task by dividing waiting times to different ranges and trying to predict the range from the same features. This didn't work either, and the network ended up predicting the most common class. This can be due to many things: notably not using enough data, bad network arcitecture, not doing enough hyperaparameter optimization or general lack of experience on our side.
 
-Finally, we noticed that these two graphs we had plotted early on look rather familiar:
+### Final implementation
+
+We had been exploring the data and plotting it in various ways. While some of these explorations gave some insight to the data, most ended up being useless. At one point we noticed that these two graphs we had plotted early on look rather familiar:
 
 Distribution of waiting times for next bike **taken from** Kamppi station:
 ![Distribution of wait for next bike taken from station](/pics/bike_take.png)
@@ -61,18 +63,16 @@ Distribution of waiting times for next bike **taken from** Kamppi station:
 Distribution of waiting times for next bike **brought to** Kamppi station:
 ![Distribution of wait for next bike brought to station](/pics/bike_brought.png)
 
-### Final implementation
+They seemed to resemble exponential distribution. All of us being computer scientists and our statistics knowledge being limited to very basics, we hardly even knew what a exponential distribution existed. So we studied exponential distributions more and found out that confidence intervals could be used for making predictions. We looked into available solutions for fitting an exponential distribution to our existing dataset and landed on [curve_fit](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html) function of the SciPy library.
 
-TODO: Joni Teaching the exponential distribution parameter, confidence interval
+It didn't make sense to fit the curve to our entire dataset as we had earlier figured out time of the day, day of the week and station being the factors affecting the bike mobility the most. We instead fitted exponential function to waiting times for each hour of each weekday for each station. Having learned parameters for the exponential function we were able to calculate confidence intervals using percent point function (inverse of cdf — percentiles). We chose to use 75% confidence interval as it seemed to give good results.
 
-Calculate waiting time distribution for each weekday and hour
+Now, we could have also used the raw data for calculating the confidence intervals rather than fitting exponential function to the data and predicting based on that. However, the benefits of exponential function was that it could be stored as a single number, a parameter to the function, while the raw event data took over 4GB space. This made calculations and reiterations of confidence interval parameters much faster as well as made it possible to include the data with out application easily.
 
-Learn parameter for exponential distribution using sklearn
+After that we labelled the dataset with rainy (over 0.2mm) and warm (temperature over 20 c) labels and built estimates separately for each case. See the current weather from the API and choose correct estimate. We didn't build estimates for combinations, so for example for cold and rainy and warm and rainy weather we will show the rainy prediction, as we think that rain has a bigger influence on cyclists than temperature.
 
-Divided dataset to rainy (over 0.2mm) and not rainy, warm (temperature over 20 c) and built estimates separately for each case. See the current weather from the API and choose correct estimate. We didn't build estimates for combinations, so for example for cold and rainy and warm and rainy weather we will show the rainy prediciton, as we think that rain has a bigger influence on cyclists than temperature.
-
-Confidence interval used: 0.75
-
-The estimates are written to separate files using `estimates_to_files.py`.
+For the technical implementation of our solution take a look at the `estimates_to_files.py` file in the repository.
 
 ## Who did what
+
+We worked together as a group. Everyone did somewhat equal amount of work and we constantly shared and validated ideas with each other.
