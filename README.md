@@ -6,13 +6,17 @@
 
 Introduction to Data Science miniproject for predicting when a HSL city bike will be added and when one will be taken from a city bike station.
 
-## Link to deliverable
+## [Link to deliverable](https://magic-city-bikes.herokuapp.com/)
+
+The application repository can be found [here](https://github.com/magic-city-bikes/magic-city-bikes-web).
 
 ### How it works:
 
 Estimates are calculated for each station separately based on data of last three seasons. There are different estimates for rainy/not rainy weather and warm/cold weather for each weekday and hour. The current weather is queried from opendata.fmi.fi, and the correct estimate is displayed. If there are no bikes, the estimate for next bike brought is not shown. New weather data is queried and estimates chosen every ten minutes.
 
-We used the application [kaupunkifillarit.fi](https://github.com/sampsakuronen/kaupunkifillarit-web) as a basis for our project.
+We used the [kaupunkifillarit.fi](https://github.com/sampsakuronen/kaupunkifillarit-web) application as a basis for our project.
+
+![Example use case](/pics/magic-city-bike-use-case.png)
 
 ## Data
 
@@ -20,7 +24,7 @@ We combined data on the HSL city bike stations and weather data.
 
 ### HSL city bikes
 
-HSL provides comprehensive APIs for all means of public transportation. In this report we focus on the city bike data exclusively which is available at <https://dev.hsl.fi/>. The used APIs are real-time but some limited historical data is available at <https://dev.hsl.fi/citybike/>. The API contains the following information for each station: id, name, coordinates, number of parked bikes, number of parking slots and some status info. Fortunately, we had been collecting the data for three last seasons ourselves. The data collection was conducted by polling the HSL City Bike APIs for past three years with one minute intervals. These snapshots that represent the status of a single station at given time are referred to as events. We had total of 68 million events in the dataset. 
+HSL provides comprehensive APIs for all means of public transportation. In this report we focus on the city bike data exclusively which is available at <https://dev.hsl.fi/>. The used APIs are real-time but some limited historical data is available at <https://dev.hsl.fi/citybike/>. The API contains the following information for each station: id, name, coordinates, number of parked bikes, number of parking slots and some status info. Fortunately, we had been collecting the data for three last seasons ourselves. The data collection was conducted by polling the HSL City Bike APIs for past three years with one minute intervals. These snapshots that represent the status of a single station at given time are referred to as events. We had total of 68 million events in the dataset.
 
 We encountered some issues with the event data which we'll describe in more detail here. There were duplicate events caused by bug in our collector and we had to include data deduplication in our pipeline. There were missing events caused by either City Bike API unavailability or errors with the collector. This lead to us making assumptions about data when at most one consecutive snapshot (1 minute) was missing, and discarding some events that happened around the missing events when durations were longer. HSL made changes to the City Bikes network throughout seasons such as relocation of stations, and assigning new identifiers to stations because of that. We considered stations to be the same, if the name of the station was the same throughout seasons and considered them to be distinct otherwise. Another option was to normalize stations based on their coordinates and treat stations as equal if they were close to other station from previous season.
 
@@ -71,7 +75,20 @@ Now, we could have also used the raw data for calculating the confidence interva
 
 After that we labelled the dataset with rainy (over 0.2mm) and warm (temperature over 20 c) labels and built estimates separately for each case. See the current weather from the API and choose correct estimate. We didn't build estimates for combinations, so for example for cold and rainy and warm and rainy weather we will show the rainy prediction, as we think that rain has a bigger influence on cyclists than temperature.
 
-For the technical implementation of our solution take a look at the `estimates_to_files.py` file in the repository.
+For the technical implementation of our solution take a look at the `estimates_to_files.py` file in the repository. In this repository you can also see all the attempted solutions.
+
+# Limitations
+
+At the moment, the project is mostly a proof of concept, and not yet a production level application.
+
+The biggest problem is low maintainability of the predictions. Our application has an impact on how people use the city bikes, so the data should be updated regularly by polling new data. However the process of rerunning is the data rather slow.
+
+In addition, the division between rainy and cold weather is rather harsh. It would be safe to assume that there is a big difference in usage between 18 degrees and 10 degrees. In addition, the current implementation results in many hours where there are no estimates. If there is no estimate for any type of weather, none is shown. Instead, we could show an estimate which might be close.
+
+# Future work
+
+The estimates should be moved to a database, which would ease the process of calculating new predictions. In addition, the amount of bikes in circulation could be calculated, and used as  a part of a more machine learning -type solution.
+
 
 ## Who did what
 
