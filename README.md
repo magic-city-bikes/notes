@@ -30,18 +30,17 @@ We encountered some issues with the event data which we'll describe in more deta
 
 ### Weather
 
-Weather data was collected from FMI. For the models we downloaded weather observations from the Kumpula observation station from the [FMI website](https://en.ilmatieteenlaitos.fi/download-observations#!/) as a CSV file.
+Weather data was collected from FMI. For the models we downloaded weather observations from the Kumpula observation station from the [FMI website](https://en.ilmatieteenlaitos.fi/download-observations#!/) as a CSV file. Due to time restrictions we only collected data from the observation station in Kumpula, instead of different weather observation stations nearer each city bike station.
 
 Empty values in the weather data were filled with last known value. Only temperature and the amount of rain is used in the final model we used.
 
-For the [application](https://github.com/magic-city-bikes/magic-city-bikes-web) the real-time weather data is collected from [FMI's API for getting weather observations for the Kumpula observation station](http://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=fmi::observations::weather::timevaluepair&fmisid=101004&parameters=r_1h,t2m&starttime=2018-10-25T11:39:10.992Z). The observations are from the last hour at 10 minute intervals. The average of the temperature and amount of rain from the last hour is used.
+For the [application](https://github.com/magic-city-bikes/magic-city-bikes-web) the real-time weather data is collected from [FMI's API for getting weather observations for the Kumpula observation station](http://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=fmi::observations::weather::timevaluepair&fmisid=101004&parameters=r_1h,t2m&starttime=2018-10-25T11:39:10.992Z). The observations are temperature and the amount of rain from the last hour at 10 minute intervals. The average of the temperature and amount of rain from the last hour is used.
 
 ### Problems
-Same timezone in weather and bike stations (UTC)
 
-HSL API's station identifiers not consistent
+Some problems we faced with the application were related to timezones and the different ways Python and JavaScript handle dates. We needed to make sure that the weather data and bike data timestamps were in both in the same timezone. The times were in UTC, so that needed to be taken into account when checking the results.
 
-Missing timestamps --> assume that no bike was brought or taken
+In our estimates created with Python, the weekday is a number where 0 means Monday and so on, due to how Python handles dates. In JavaScript however, weekdays gotten from a date object start from Sunday, so 0 equals Sunday, 1 equals Monday, etc. This needed to be dealt with in the code for adding the estimations to bike stations in the application.
 
 ## Estimates
 
@@ -84,6 +83,8 @@ At the moment, the project is mostly a proof of concept, and not yet a productio
 The biggest problem is low maintainability of the predictions. Our application has an impact on how people use the city bikes, so the data should be updated regularly by polling new data. However the process of rerunning is the data rather slow.
 
 In addition, the division between rainy and cold weather is rather harsh. It would be safe to assume that there is a big difference in usage between 18 degrees and 10 degrees. In addition, the current implementation results in many hours where there are no estimates. If there is no estimate for any type of weather, none is shown. Instead, we could show an estimate which might be close.
+
+Because the weather observations are collected only from the Kumpula observation station, they might not be very accurate when considering city bike stations for example in Espoo. Collecting weather observations from observation stations nearest to each bike station might increase the usefulness of the weather data in the predictions.
 
 # Future work
 
