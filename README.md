@@ -80,7 +80,7 @@ For the technical implementation of our solution take a look at the `estimates_t
 
 At the moment, the project is mostly a proof of concept, and not yet a production level application.
 
-The biggest problem is low maintainability of the predictions. Our application has an impact on how people use the city bikes, so the data should be updated regularly by polling new data. However the process of rerunning is the data rather slow.
+The biggest problem is low maintainability of the predictions. Our application has an impact on how people use the city bikes, so the data should be updated regularly by polling new data. However the process of rerunning is the data rather slow. HSL City Bike API provides only limited view to the City Bike network. The API is missing information such as which bike is at which stop, or in more general where any given city bike is at this moment.
 
 In addition, the division between rainy and cold weather is rather harsh. It would be safe to assume that there is a big difference in usage between 18 degrees and 10 degrees. In addition, the current implementation results in many hours where there are no estimates. If there is no estimate for any type of weather, none is shown. Instead, we could show an estimate which might be close.
 
@@ -88,7 +88,9 @@ Because the weather observations are collected only from the Kumpula observation
 
 # Future work
 
-The estimates should be moved to a database, which would ease the process of calculating new predictions. In addition, the amount of bikes in circulation could be calculated, and used as  a part of a more machine learning -type solution.
+The estimates should be moved to a database, which would ease the process of calculating new predictions. In addition, the amount of bikes in circulation could be calculated, and used as  a part of a more machine learning -type solution. If HSL would be to open up more bike information in the API, it could be possible to learn more precise patterns from the data and give better predictions.
+
+We thought about using Markov chains and building hidden Markov chain model to predict where specific bike is heading to. Hidden Markov chain could be built using the data available today by treating the currently unavailable data as the hidden state. The results from this wouldn't be as accurate as if we had access to the real data. However, implementing this wasn't possible within the time frame of this course and is left as a homework for the reader. 
 
 
 ## Who did what
