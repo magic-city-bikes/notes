@@ -95,3 +95,9 @@ We thought about using Markov chains and building hidden Markov chain model to p
 ## Who did what
 
 We worked together as a group. Everyone did somewhat equal amount of work and we constantly shared and validated ideas with each other.
+
+- Joni Salmi - Developing statistical analysis method and providing the historical bike usage data.
+- Irene Nikkarinen - Testing out linear regression and neural networks, building final script and developing the deliverable.
+- Krstiina Rahikainen - Acquiring and merging weather data and developing the deliverable.
+
+Everyone participated in writing this report and data exploration.
